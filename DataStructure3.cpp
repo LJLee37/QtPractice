@@ -39,15 +39,15 @@ public:
 };
 
 template <typename Q>
-class queue_t
+class dllist_t
 {
 private:
     node_t<Q>* top{nullptr};
     node_t<Q>* rear{nullptr};
     node_t<Q>* current{nullptr};
 public:
-    queue_t(){}
-    queue_t(Q initData)
+    dllist_t(){}
+    dllist_t(Q initData)
     {
         push(initData);
     }
@@ -89,13 +89,15 @@ public:
             return 0;
         else
         {
-            auto* temp1 = current->get_prev();
-            auto* temp2 = current->get_next();
+            node_t<Q>* temp1 = current->get_prev();
+            node_t<Q>* temp2 = current->get_next();
             auto data = current->get_data();
-            temp1->edit_next(temp2);
-            temp2->edit_prev(temp1);
+            if(temp1 != nullptr)
+                temp1->edit_next(temp2);
+            if(temp2 != nullptr)
+                temp2->edit_prev(temp1);
             delete current;
-            if(temp1 == nullptr)
+            if(temp1 != nullptr)
             current = temp1;
             else
             current = temp2;
@@ -107,50 +109,56 @@ public:
             return data;
         }
     }
-    Q goto_prev()
+    bool goto_prev()
     {
-        if(current == nullptr)
+        if((current == nullptr) || (current->get_prev() == nullptr))
             return 0;
         current = current->get_prev();
         return 1;
     }
-    Q goto_next()
+    bool goto_next()
     {
-        if(current == nullptr)
+        if((current == nullptr) || (current->get_next() == nullptr))
             return 0;
         current = current->get_next();
         return 1;
     }
-    Q get_top()
+    bool goto_top()
     {
-        if(top == nullptr)
+        if(current == nullptr)
             return 0;
-        return top->get_data();
+        current = top;
+        return 1;
     }
-    
-    Q get_rear()
+    bool goto_rear()
     {
-        if(rear == nullptr)
+        if(current == nullptr)
             return 0;
-        return rear->get_data();
+        current = rear;
+        return 1;
     }
-    ~queue_t()
+    ~dllist_t()
     {
         while(current != nullptr)
             pop();
     }
-
+    Q get_cur_data()
+    {
+        if(current != nullptr)
+            return current->get_data();
+        return 0;
+    }
 };
 
 int main()
 {
     cout << "Dual List Queue Program" << endl;
-    queue_t<int> q;
+    dllist_t<int> q;
     while(true)
     {
         auto cmd = 0;
         cout << endl << "choose action" << endl;
-        cout << "1: push, 2: pop, 3: goto_prev, 4: goto_next, 5: get_top, 6: get_rear, 7: empty, 8: end" << endl;
+        cout << "1: push, 2: pop, 3: goto_prev, 4: goto_next, 5: goto_top, 6: goto_rear, 7: get_cur_data, 8: empty, 9: end" << endl;
         cout << "your choice : ";
         cin >> cmd;
         switch (cmd)
@@ -171,15 +179,18 @@ int main()
             cout << q.goto_next() << endl;
             break;
         case 5:
-            cout << q.get_top() << endl;
+            cout << q.goto_top() << endl;
             break;
         case 6:
-            cout << q.get_rear() << endl;
+            cout << q.goto_rear() << endl;
             break;
         case 7:
-            cout << q.empty() << endl;
+            cout << q.get_cur_data() << endl;
             break;
         case 8:
+            cout << q.empty() << endl;
+            break;
+        case 9:
             return 0;
             break;
         default:
